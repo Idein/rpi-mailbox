@@ -6,22 +6,21 @@ extern crate log;
 extern crate error_chain;
 
 pub mod error;
-pub mod kernel;
-pub mod mailbox;
-pub mod message;
+mod kernel;
+mod mailbox;
+mod message;
 pub mod raspberrypi_firmware;
 
 use std::mem::size_of;
 
 use kernel::rpi_firmware_property;
 pub use mailbox::Mailbox;
-use raspberrypi_firmware::rpi_firmware_property_tag;
+use raspberrypi_firmware::rpi_firmware_property_tag::*;
 
 pub use error::Result;
 
 pub fn firmware_revision(mb: &Mailbox) -> Result<u32> {
     use message::firmware_revision::*;
-    use rpi_firmware_property_tag::*;
 
     let mut msg = Message { in_: In };
     rpi_firmware_property(
@@ -36,7 +35,6 @@ pub fn firmware_revision(mb: &Mailbox) -> Result<u32> {
 
 pub fn get_board_model(mb: &Mailbox) -> Result<u32> {
     use message::board_model::*;
-    use rpi_firmware_property_tag::*;
 
     let mut msg = Message { in_: In };
     rpi_firmware_property(
@@ -51,7 +49,6 @@ pub fn get_board_model(mb: &Mailbox) -> Result<u32> {
 
 pub fn get_board_revision(mb: &Mailbox) -> Result<u32> {
     use message::board_revision::*;
-    use rpi_firmware_property_tag::*;
 
     let mut msg = Message { in_: In };
     rpi_firmware_property(
@@ -66,7 +63,6 @@ pub fn get_board_revision(mb: &Mailbox) -> Result<u32> {
 
 pub fn get_board_mac_address(mb: &Mailbox) -> Result<u64> {
     use message::board_mac_address::*;
-    use rpi_firmware_property_tag::*;
 
     let mut msg = Message { in_: In(0) };
     rpi_firmware_property(
@@ -88,7 +84,6 @@ pub fn get_board_mac_address(mb: &Mailbox) -> Result<u64> {
 
 pub fn get_board_serial(mb: &Mailbox) -> Result<u64> {
     use message::board_serial::*;
-    use rpi_firmware_property_tag::*;
 
     let mut msg = Message { in_: In };
     rpi_firmware_property(
@@ -103,7 +98,6 @@ pub fn get_board_serial(mb: &Mailbox) -> Result<u64> {
 
 pub fn get_arm_memory(mb: &Mailbox) -> Result<(u32, u32)> {
     use message::arm_memory::*;
-    use rpi_firmware_property_tag::*;
 
     let mut msg = Message { in_: In };
     rpi_firmware_property(
@@ -118,7 +112,6 @@ pub fn get_arm_memory(mb: &Mailbox) -> Result<(u32, u32)> {
 
 pub fn get_vc_memory(mb: &Mailbox) -> Result<(u32, u32)> {
     use message::vc_memory::*;
-    use rpi_firmware_property_tag::*;
 
     let mut msg = Message { in_: In };
     rpi_firmware_property(
