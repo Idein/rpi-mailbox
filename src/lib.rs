@@ -1,10 +1,13 @@
+#[macro_use]
 extern crate nix;
+#[macro_use]
+extern crate log;
 
-mod mailbox;
-mod raspberrypi_firmware;
+pub mod kernel;
+pub mod mailbox;
+pub mod raspberrypi_firmware;
 
-use mailbox::*;
-use raspberrypi_firmware::*;
+pub use mailbox::Mailbox;
 
 #[cfg(test)]
 mod tests {

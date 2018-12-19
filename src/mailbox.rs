@@ -14,7 +14,7 @@ impl Mailbox {
     /// open device
     ///
     /// device: path to mailbox device. e.g. /dev/vcio
-    fn new<P>(device: &P) -> nix::Result<Self>
+    pub fn new<P>(device: &P) -> nix::Result<Self>
     where
         P: ?Sized + NixPath,
     {
