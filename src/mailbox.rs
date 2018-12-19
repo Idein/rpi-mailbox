@@ -1,11 +1,12 @@
 use std::ops::Drop;
 use std::os::unix::io::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 
-use nix;
 use nix::fcntl;
 use nix::sys::stat;
 use nix::unistd;
 use nix::NixPath;
+
+use error::Error;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Mailbox(RawFd);
@@ -14,7 +15,7 @@ impl Mailbox {
     /// open device
     ///
     /// device: path to mailbox device. e.g. /dev/vcio
-    pub fn new<P>(device: &P) -> nix::Result<Self>
+    pub fn new<P>(device: &P) -> Result<Self, Error>
     where
         P: ?Sized + NixPath,
     {

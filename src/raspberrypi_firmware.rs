@@ -120,3 +120,14 @@ pub enum rpi_firmware_property_tag {
     RPI_FIRMWARE_GET_COMMAND_LINE = 0x00050001,
     RPI_FIRMWARE_GET_DMA_CHANNELS = 0x00060001,
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::mem::size_of;
+
+    #[test]
+    fn size_of_header() {
+        assert_eq!(size_of::<rpi_firmware_property_tag_header>(), 12);
+    }
+}
