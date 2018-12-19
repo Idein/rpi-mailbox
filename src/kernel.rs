@@ -25,7 +25,7 @@ mod ioctl {
     }
 }
 
-fn rpi_firmware_property_list(mb: Mailbox, data: *mut u8, tag_size: usize) -> nix::Result<c_int> {
+fn rpi_firmware_property_list(mb: &Mailbox, data: *mut u8, tag_size: usize) -> nix::Result<c_int> {
     use self::ioctl;
 
     let size: usize = size_of::<u32>() * 2 + tag_size + size_of::<u32>();
@@ -64,7 +64,7 @@ fn rpi_firmware_property_list(mb: Mailbox, data: *mut u8, tag_size: usize) -> ni
 }
 
 pub fn rpi_firmware_property(
-    mb: Mailbox,
+    mb: &Mailbox,
     tag: rpi_firmware_property_tag,
     tag_data: *mut u8,
     buf_size: usize,
