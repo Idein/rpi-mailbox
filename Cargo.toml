@@ -1,0 +1,9 @@
+[package]
+name = "rpi-mailbox"
+version = "0.1.0"
+authors = ["eldesh <takayuki@idein.jp>"]
+description = "An interface of the `mailbox` which is a low level interface of the RaspberryPi."
+readme = "Readme.md"
+
+[dependencies]
+
