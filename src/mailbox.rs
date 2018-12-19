@@ -7,7 +7,7 @@ use nix::sys::stat;
 use nix::unistd;
 use nix::NixPath;
 
-#[derive(Debug, PartialEq, Eq, Clone, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Mailbox(RawFd);
 
 impl Mailbox {
