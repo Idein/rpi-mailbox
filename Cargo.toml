@@ -6,4 +6,5 @@ description = "An interface of the `mailbox` which is a low level interface of t
 readme = "Readme.md"
 
 [dependencies]
+nix = "0.10.0"
 
