@@ -1,3 +1,6 @@
+//! A RaspberryPi mailbox interface
+//!
+
 #[macro_use]
 extern crate nix;
 #[macro_use]
