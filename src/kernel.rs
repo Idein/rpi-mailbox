@@ -22,7 +22,7 @@ mod ioctl {
 
     ioctl! {
         /// mailbox_property via ioctl with VCIO_IOC_MAGIC
-        readwrite mailbox_property with VCIO_IOC_MAGIC, VCIO_IOC_TYPE_MODE; * mut u8
+        readwrite mailbox_property with VCIO_IOC_MAGIC, VCIO_IOC_TYPE_MODE; u32
     }
 }
 
@@ -42,7 +42,7 @@ fn rpi_firmware_property_list(mb: &Mailbox, data: *mut u8, tag_size: usize) -> R
     buf.iter().for_each(|x| debug!("{},", x));
     debug!("");
 
-    let res = unsafe { ioctl::mailbox_property(mb.as_raw_fd(), buf.as_mut_ptr() as *mut *mut u8) }?;
+    let res = unsafe { ioctl::mailbox_property(mb.as_raw_fd(), buf.as_mut_ptr()) }?;
 
     debug!("buf[1]: {}", buf[1]);
     if buf[1] != RPI_FIRMWARE_STATUS_SUCCESS as u32 {
