@@ -4,10 +4,13 @@ extern crate nix;
 extern crate log;
 #[macro_use]
 extern crate error_chain;
+#[macro_use]
+extern crate bitflags;
 
 pub mod error;
 mod kernel;
 mod mailbox;
+pub mod memflag;
 mod message;
 pub mod raspberrypi_firmware;
 
@@ -122,6 +125,75 @@ pub fn get_vc_memory(mb: &Mailbox) -> Result<(u32, u32)> {
         size_of::<Out>(),
     )?;
     unsafe { Ok((msg.out.base, msg.out.size)) }
+}
+
+pub fn mailbox_mem_alloc(
+    mb: &Mailbox,
+    size: u32,
+    align: u32,
+    flags: memflag::Flags,
+) -> Result<u32> {
+    use message::allocate_memory::*;
+
+    let mut msg = Message {
+        in_: In {
+            size,
+            align,
+            flags: flags.bits(),
+        },
+    };
+    rpi_firmware_property(
+        mb,
+        RPI_FIRMWARE_ALLOCATE_MEMORY,
+        &mut msg as *mut Message as *mut u8,
+        size_of::<In>(),
+        size_of::<Out>(),
+    )?;
+    unsafe { Ok(msg.out.handle) }
+}
+
+pub fn mailbox_mem_free(mb: &Mailbox, handle: u32) -> Result<u32> {
+    use message::release_memory::*;
+
+    let mut msg = Message { in_: In { handle } };
+    rpi_firmware_property(
+        mb,
+        RPI_FIRMWARE_RELEASE_MEMORY,
+        &mut msg as *mut Message as *mut u8,
+        size_of::<In>(),
+        size_of::<Out>(),
+    )?;
+    unsafe { Ok(msg.out.status) }
+}
+
+pub fn mailbox_mem_lock(mb: &Mailbox, handle: u32) -> Result<u32> {
+    use message::lock_memory::*;
+
+    let mut msg = Message { in_: In { handle } };
+    rpi_firmware_property(
+        mb,
+        RPI_FIRMWARE_LOCK_MEMORY,
+        &mut msg as *mut Message as *mut u8,
+        size_of::<In>(),
+        size_of::<Out>(),
+    )?;
+    unsafe { Ok(msg.out.busaddr) }
+}
+
+pub fn mailbox_mem_unlock(mb: &Mailbox, busaddr: u32) -> Result<u32> {
+    use message::unlock_memory::*;
+
+    let mut msg = Message {
+        in_: In { busaddr },
+    };
+    rpi_firmware_property(
+        mb,
+        RPI_FIRMWARE_UNLOCK_MEMORY,
+        &mut msg as *mut Message as *mut u8,
+        size_of::<In>(),
+        size_of::<Out>(),
+    )?;
+    unsafe { Ok(msg.out.status) }
 }
 
 pub fn get_throttled(mb: &Mailbox) -> Result<u32> {
