@@ -27,6 +27,9 @@ fn main() {
     let (base, size) = get_arm_memory(&mb).expect("arm_memory");
     println!("ARM memory: 0x{:08x} bytes at 0x{:08x}", size, base);
 
-    let (base, size) = get_vc_memory(&mb).expect("arm_memory");
+    let (base, size) = get_vc_memory(&mb).expect("vc_memory");
     println!("VC memory:  0x{:08x} bytes at 0x{:08x}", size, base);
+
+    let throttled = get_throttled(&mb).expect("throttled");
+    println!("Throttled: 0x{:x}", throttled);
 }

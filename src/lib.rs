@@ -123,3 +123,19 @@ pub fn get_vc_memory(mb: &Mailbox) -> Result<(u32, u32)> {
     )?;
     unsafe { Ok((msg.out.base, msg.out.size)) }
 }
+
+pub fn get_throttled(mb: &Mailbox) -> Result<u32> {
+    use message::throttled::*;
+
+    let mut msg = Message {
+        in_: In { mask: 0 },
+    };
+    rpi_firmware_property(
+        mb,
+        RPI_FIRMWARE_GET_THROTTLED,
+        &mut msg as *mut Message as *mut u8,
+        size_of::<Message>(),
+        size_of::<Out>(),
+    )?;
+    unsafe { Ok(msg.out.throttled) }
+}

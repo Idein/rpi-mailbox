@@ -241,3 +241,25 @@ pub mod release_memory {
         pub out: Out,
     }
 }
+
+/// RPI_FIRMWARE_GET_THROTTLED
+pub mod throttled {
+    #[repr(C)]
+    #[derive(Debug, Clone, Copy)]
+    pub struct In {
+        pub mask: u16,
+    }
+
+    #[repr(C)]
+    #[derive(Debug, Clone, Copy)]
+    pub struct Out {
+        pub throttled: u32,
+    }
+
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub union Message {
+        pub in_: In,
+        pub out: Out,
+    }
+}
