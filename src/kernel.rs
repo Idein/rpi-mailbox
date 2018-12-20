@@ -35,12 +35,7 @@ fn rpi_firmware_property_list(mb: &Mailbox, data: *mut u8, tag_size: usize) -> R
     buf[0] = size as u32;
     buf[1] = RPI_FIRMWARE_STATUS_REQUEST as u32;
     unsafe {
-        debug!(
-            "ptr: {:?}, offset(2): {:?}",
-            buf.as_mut_ptr() as *mut u8,
-            buf.as_mut_ptr().offset(2) as *mut u8
-        );
-        ptr::copy::<u8>(data, buf.as_mut_ptr().offset(2) as *mut u8, tag_size);
+        ptr::copy(data, buf.as_mut_ptr().offset(2) as *mut u8, tag_size);
     }
     buf[size / 4 - 1] = RPI_FIRMWARE_PROPERTY_END as u32;
     debug!("buf[{}]: ", buf.len());
@@ -91,18 +86,14 @@ pub fn rpi_firmware_property(
 
     rpi_firmware_property_list(mb, data.as_mut_ptr() as *mut u8, data_size)?;
 
-    debug!(
-        "header->req_resp_size: {}, {:x}",
-        data[2],
-        (data[2] & (1u32 << 31))
-    );
+    debug!("req_resp_size: {:x}", data[2]);
 
     if (data[2] & (1u32 << 31)) == 0 {
         return Err(ErrorKind::ReqRespSizeBit(data[2]).into());
     }
     data[2] &= !(1u32 << 31);
 
-    debug!("req_resp_size: {},{}", data[2], req_resp_size);
+    debug!("req_resp_size: {:x},{:x}", data[2], req_resp_size);
     if data[2] != req_resp_size as u32 {
         info!(
             "Note: req_resp_size seems not to be used in the firmware \
