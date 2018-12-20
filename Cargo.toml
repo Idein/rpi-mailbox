@@ -3,7 +3,11 @@ name = "rpi-mailbox"
 version = "0.1.0"
 authors = ["eldesh <takayuki@idein.jp>"]
 description = "An interface of the `mailbox` which is a low level interface of the RaspberryPi."
+homepage = "https://github.com/Idein/rpi-mailbox"
+repository = "https://github.com/Idein/rpi-mailbox"
+documentation = "https://docs.rs/rpi-mailbox"
 readme = "Readme.md"
+license = "Apache-2.0"
 keywords = ["raspberrypi"]
 
 [dependencies]
