@@ -16,9 +16,9 @@ pub enum rpi_firmware_property_status {
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct rpi_firmware_property_tag_header {
-    tag: u32,
-    buf_size: u32,
-    req_resp_size: u32,
+    pub tag: rpi_firmware_property_tag,
+    pub buf_size: u32,
+    pub req_resp_size: u32,
 }
 
 #[repr(u32)]

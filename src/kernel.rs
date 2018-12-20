@@ -3,7 +3,7 @@
 
 use std::mem::size_of;
 use std::os::unix::io::AsRawFd;
-use std::ptr;
+use std::ptr::{self, NonNull};
 
 use nix::libc::c_int;
 
@@ -33,6 +33,7 @@ fn rpi_firmware_property_list(mb: &Mailbox, data: *mut u8, tag_size: usize) -> R
     debug!("{}:{}", size, tag_size);
 
     let mut buf: Vec<u32> = vec![0u32; size / 4];
+    // make request
     buf[0] = size as u32;
     buf[1] = RPI_FIRMWARE_STATUS_REQUEST as u32;
     unsafe {
@@ -40,19 +41,19 @@ fn rpi_firmware_property_list(mb: &Mailbox, data: *mut u8, tag_size: usize) -> R
     }
     buf[size / 4 - 1] = RPI_FIRMWARE_PROPERTY_END as u32;
 
+    // issue request to mailbox
     debug!("buf: {:?}", buf);
-
     let res = unsafe { ioctl::mailbox_property(mb.as_raw_fd(), buf.as_mut_ptr()) }?;
-
     debug!("buf: {:?}", buf);
+
     if buf[1] != RPI_FIRMWARE_STATUS_SUCCESS as u32 {
         return Err(ErrorKind::RequestFailed(buf[1]).into());
     }
 
+    // write back to data
     unsafe {
         ptr::copy(buf.as_ptr().offset(2) as *const u8, data, tag_size);
     }
-
     Ok(res)
 }
 
@@ -68,49 +69,78 @@ pub fn rpi_firmware_property(
     }
 
     let data_size = size_of::<rpi_firmware_property_tag_header>() + buf_size;
-    let mut data = vec![0u32; data_size / 4];
-    data[0] = tag as u32;
-    data[1] = buf_size as u32;
-    data[2] = req_resp_size as u32;
-    debug!("{},{},{}", data[1], data[2], data_size);
+    debug!("{},{},{}", buf_size, req_resp_size, data_size);
+
+    let mut data = vec![0u8; data_size];
+    union U {
+        header: NonNull<rpi_firmware_property_tag_header>,
+        data: NonNull<u8>,
+    }
+
+    let mut u = U {
+        data: unsafe { NonNull::new_unchecked(data.as_mut_ptr()) },
+    };
 
     unsafe {
+        // initialize request buffer via header
+        u.header.as_mut().tag = tag;
+        u.header.as_mut().buf_size = buf_size as u32;
+        u.header.as_mut().req_resp_size = req_resp_size as u32;
+
+        // follow headers, copy tag_data to u.data buffer
         ptr::copy(
             tag_data,
-            (data.as_mut_ptr() as *mut u8)
+            u.data
+                .as_ptr()
                 .offset(size_of::<rpi_firmware_property_tag_header>() as isize),
             buf_size,
-        )
+        );
+
+        // issue request
+        debug!("data[..] {} {} {} {}", data[0], data[1], data[2], data[3]);
+        rpi_firmware_property_list(mb, u.data.as_ptr(), data_size)?;
+        debug!("data[..] {} {} {} {}", data[0], data[1], data[2], data[3]);
+
+        // check response header bit
+        let header = u.header.as_mut();
+        if (header.req_resp_size & (1u32 << 31)) == 0 {
+            return Err(ErrorKind::ReqRespSizeBit(header.req_resp_size).into());
+        }
+        header.req_resp_size &= !(1u32 << 31); // clear flag
     }
-    debug!("data[..] {} {} {} {}", data[0], data[1], data[2], data[3]);
 
-    rpi_firmware_property_list(mb, data.as_mut_ptr() as *mut u8, data_size)?;
+    let header = unsafe { u.header.as_ref() };
 
-    debug!("data[..] {} {} {} {}", data[0], data[1], data[2], data[3]);
+    // check response consistency...
+    //
 
-    if (data[2] & (1u32 << 31)) == 0 {
-        return Err(ErrorKind::ReqRespSizeBit(data[2]).into());
-    }
-
-    data[2] &= !(1u32 << 31); // clear flag
-
-    debug!("req_resp_size: {:x},{:x}", data[2], req_resp_size);
-    if data[2] != req_resp_size as u32 {
+    debug!(
+        "req_resp_size: {:x},{:x}",
+        header.req_resp_size, req_resp_size
+    );
+    if header.req_resp_size != req_resp_size as u32 {
         info!(
             "Note: req_resp_size seems not to be used in the firmware \
              for now, but we require users to set this to proper value"
         );
-        return Err(ErrorKind::BufferSizeMismatchYouThink(data[2] as usize, req_resp_size).into());
+        return Err(ErrorKind::BufferSizeMismatchYouThink(
+            header.req_resp_size as usize,
+            req_resp_size,
+        ).into());
     }
 
     debug!("buf_size: {}", buf_size);
-    if data[2] > buf_size as u32 {
-        return Err(ErrorKind::BufferSizeMismatchSupplied(data[2] as usize, buf_size).into());
+    if header.req_resp_size > buf_size as u32 {
+        return Err(
+            ErrorKind::BufferSizeMismatchSupplied(header.req_resp_size as usize, buf_size).into(),
+        );
     }
 
+    // write back to tag_data from u.data
     unsafe {
         ptr::copy(
-            (data.as_ptr() as *const u8)
+            u.data
+                .as_ptr()
                 .offset(size_of::<rpi_firmware_property_tag_header>() as isize),
             tag_data,
             req_resp_size,
