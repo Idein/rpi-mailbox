@@ -79,12 +79,9 @@ pub fn get_board_mac_address(mb: &Mailbox) -> Result<u64> {
         size_of::<Out>(),
     )?;
     unsafe {
-        Ok((msg.out.v0 as u64) << 8 * 5
-            | (msg.out.v1 as u64) << 8 * 4
-            | (msg.out.v2 as u64) << 8 * 3
-            | (msg.out.v3 as u64) << 8 * 2
-            | (msg.out.v4 as u64) << 8 * 1
-            | (msg.out.v5 as u64) << 8 * 0)
+        Ok((msg.out.v0 as u64) << 8 * 5 | (msg.out.v1 as u64) << 8 * 4
+            | (msg.out.v2 as u64) << 8 * 3 | (msg.out.v3 as u64) << 8 * 2
+            | (msg.out.v4 as u64) << 8 * 1 | (msg.out.v5 as u64) << 8 * 0)
     }
 }
 
