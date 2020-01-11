@@ -6,7 +6,7 @@ use nix::sys::stat;
 use nix::unistd;
 use nix::NixPath;
 
-use error::Error;
+use crate::error::Error;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Mailbox(RawFd);

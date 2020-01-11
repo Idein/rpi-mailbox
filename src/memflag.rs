@@ -1,6 +1,8 @@
 //! Kind of memory flags
 //!
 
+use bitflags::bitflags;
+
 bitflags! {
     pub struct Flags: u32 {
         const MEM_FLAG_DISCARDABLE = (1 << 0);

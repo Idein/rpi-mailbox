@@ -1,15 +1,6 @@
 //! A RaspberryPi mailbox interface
 //!
 
-#[macro_use]
-extern crate bitflags;
-#[macro_use]
-extern crate failure;
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate nix;
-
 pub mod error;
 mod kernel;
 mod mailbox;

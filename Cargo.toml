@@ -1,4 +1,5 @@
 [package]
+edition = "2018"
 name = "rpi-mailbox"
 version = "0.1.0"
 authors = ["eldesh <takayuki@idein.jp>"]

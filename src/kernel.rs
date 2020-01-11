@@ -6,15 +6,17 @@ use std::os::unix::io::AsRawFd;
 use std::ptr::{self, NonNull};
 
 use nix::libc::c_int;
+use log::*;
 
-use mailbox::Mailbox;
-use raspberrypi_firmware::rpi_firmware_property_status::*;
-use raspberrypi_firmware::rpi_firmware_property_tag::*;
-use raspberrypi_firmware::{rpi_firmware_property_tag, rpi_firmware_property_tag_header};
-
-use error::{ErrorKind, Result};
+use crate::mailbox::Mailbox;
+use crate::raspberrypi_firmware::rpi_firmware_property_status::*;
+use crate::raspberrypi_firmware::rpi_firmware_property_tag::*;
+use crate::raspberrypi_firmware::{rpi_firmware_property_tag, rpi_firmware_property_tag_header};
+use crate::error::{ErrorKind, Result};
 
 mod ioctl {
+    use nix::*;
+
     /// Derived from
     /// https://github.com/raspberrypi/linux/blob/rpi-4.14.y/drivers/char/broadcom/vcio.c
     const VCIO_IOC_MAGIC: u8 = 100;
