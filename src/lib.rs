@@ -2,13 +2,13 @@
 //!
 
 #[macro_use]
-extern crate nix;
+extern crate bitflags;
+#[macro_use]
+extern crate failure;
 #[macro_use]
 extern crate log;
 #[macro_use]
-extern crate error_chain;
-#[macro_use]
-extern crate bitflags;
+extern crate nix;
 
 pub mod error;
 mod kernel;

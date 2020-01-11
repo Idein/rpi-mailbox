@@ -14,6 +14,6 @@ keywords = ["raspberrypi"]
 nix = "0.10.0"
 log = "0.4"
 chrono = "0.4"
-error-chain = "0.11"
+failure = "0.1.5"
 bitflags = "1.0"
 
