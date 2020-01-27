@@ -1,7 +1,7 @@
 [package]
 edition = "2018"
 name = "rpi-mailbox"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["eldesh <takayuki@idein.jp>"]
 description = "An interface of the `mailbox` which is a low level interface of the RaspberryPi."
 homepage = "https://github.com/Idein/rpi-mailbox"
