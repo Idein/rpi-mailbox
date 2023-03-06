@@ -4,22 +4,22 @@ extern crate rpi_mailbox;
 use rpi_mailbox::*;
 
 fn print_addr(mb: &Mailbox, flags: memflag::Flags) -> Result<()> {
-    let handle = mailbox_mem_alloc(&mb, 4096, 4096, flags)?;
+    let handle = mailbox_mem_alloc(mb, 4096, 4096, flags)?;
 
-    let busaddr = mailbox_mem_lock(&mb, handle).map_err(|err| {
-        mailbox_mem_free(&mb, handle).ok();
+    let busaddr = mailbox_mem_lock(mb, handle).map_err(|err| {
+        mailbox_mem_free(mb, handle).ok();
         err
     })?;
 
     println!("0x{:08x}", busaddr);
 
-    mailbox_mem_unlock(&mb, busaddr).map_err(|err| {
+    mailbox_mem_unlock(mb, busaddr).map_err(|err| {
         mailbox_mem_free(mb, handle).ok();
         err
     })?;
 
-    mailbox_mem_free(&mb, handle).map_err(|err| {
-        mailbox_mem_free(&mb, handle).ok();
+    mailbox_mem_free(mb, handle).map_err(|err| {
+        mailbox_mem_free(mb, handle).ok();
         err
     })?;
 

@@ -12,7 +12,7 @@ license = "Apache-2.0"
 keywords = ["raspberrypi"]
 
 [dependencies]
-nix = "0.10.0"
+nix = "0.26"
 log = "0.4"
 chrono = "0.4"
 failure = "0.1.5"

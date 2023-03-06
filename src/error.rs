@@ -1,5 +1,5 @@
-use std::fmt;
 use nix;
+use std::fmt;
 
 use failure::{Backtrace, Context, Fail};
 
@@ -16,11 +16,17 @@ pub enum ErrorKind {
         buf_size: usize,
         req_resp_size: usize,
     },
-    #[fail(display = "req_resp_size[31] was not set by firmware: {}", req_resp_size)]
+    #[fail(
+        display = "req_resp_size[31] was not set by firmware: {}",
+        req_resp_size
+    )]
     ReqRespSizeBit { req_resp_size: u32 },
     #[fail(display = "buffer size mismatch {} != {}", req_resp_size, think)]
     BufferSizeMismatch { req_resp_size: usize, think: usize },
-    #[fail(display = "buffer size mismatch (supplied) {} != {}", req_resp_size, supplied)]
+    #[fail(
+        display = "buffer size mismatch (supplied) {} != {}",
+        req_resp_size, supplied
+    )]
     BufferSizeMismatchSupplied {
         req_resp_size: usize,
         supplied: usize,
@@ -33,7 +39,7 @@ pub struct Error {
 }
 
 impl Fail for Error {
-    fn cause(&self) -> Option<&Fail> {
+    fn cause(&self) -> Option<&dyn Fail> {
         self.inner.cause()
     }
 

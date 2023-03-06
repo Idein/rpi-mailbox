@@ -5,14 +5,14 @@ use std::mem::size_of;
 use std::os::unix::io::AsRawFd;
 use std::ptr::{self, NonNull};
 
-use nix::libc::c_int;
 use log::*;
+use nix::libc::c_int;
 
+use crate::error::{ErrorKind, Result};
 use crate::mailbox::Mailbox;
 use crate::raspberrypi_firmware::rpi_firmware_property_status::*;
 use crate::raspberrypi_firmware::rpi_firmware_property_tag::*;
 use crate::raspberrypi_firmware::{rpi_firmware_property_tag, rpi_firmware_property_tag_header};
-use crate::error::{ErrorKind, Result};
 
 mod ioctl {
     use nix::*;
@@ -22,9 +22,9 @@ mod ioctl {
     const VCIO_IOC_MAGIC: u8 = 100;
     const VCIO_IOC_TYPE_MODE: u8 = 0;
 
-    ioctl! {
+    ioctl_readwrite! {
         /// mailbox_property via ioctl with VCIO_IOC_MAGIC
-        readwrite mailbox_property with VCIO_IOC_MAGIC, VCIO_IOC_TYPE_MODE; u32
+        mailbox_property, VCIO_IOC_MAGIC, VCIO_IOC_TYPE_MODE, u32
     }
 }
 
@@ -68,7 +68,8 @@ pub fn rpi_firmware_property(
         return Err(ErrorKind::InvalidInput {
             buf_size,
             req_resp_size,
-        }.into());
+        }
+        .into());
     }
 
     let data_size = size_of::<rpi_firmware_property_tag_header>() + buf_size;
@@ -95,7 +96,7 @@ pub fn rpi_firmware_property(
             tag_data,
             u.data
                 .as_ptr()
-                .offset(size_of::<rpi_firmware_property_tag_header>() as isize),
+                .add(size_of::<rpi_firmware_property_tag_header>()),
             buf_size,
         );
 
@@ -109,7 +110,8 @@ pub fn rpi_firmware_property(
         if (header.req_resp_size & (1u32 << 31)) == 0 {
             return Err(ErrorKind::ReqRespSizeBit {
                 req_resp_size: header.req_resp_size,
-            }.into());
+            }
+            .into());
         }
         header.req_resp_size &= !(1u32 << 31); // clear flag
     }
@@ -131,7 +133,8 @@ pub fn rpi_firmware_property(
         return Err(ErrorKind::BufferSizeMismatch {
             req_resp_size: header.req_resp_size as usize,
             think: req_resp_size,
-        }.into());
+        }
+        .into());
     }
 
     debug!("buf_size: {}", buf_size);
@@ -139,7 +142,8 @@ pub fn rpi_firmware_property(
         return Err(ErrorKind::BufferSizeMismatchSupplied {
             req_resp_size: header.req_resp_size as usize,
             supplied: buf_size,
-        }.into());
+        }
+        .into());
     }
 
     // write back to tag_data from u.data
@@ -147,7 +151,7 @@ pub fn rpi_firmware_property(
         ptr::copy(
             u.data
                 .as_ptr()
-                .offset(size_of::<rpi_firmware_property_tag_header>() as isize),
+                .add(size_of::<rpi_firmware_property_tag_header>()),
             tag_data,
             req_resp_size,
         )
