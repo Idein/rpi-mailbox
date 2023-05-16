@@ -8,7 +8,7 @@ use std::ptr::{self, NonNull};
 use log::*;
 use nix::libc::c_int;
 
-use crate::error::{ErrorKind, Result};
+use crate::error::{Error, Result};
 use crate::mailbox::Mailbox;
 use crate::raspberrypi_firmware::rpi_firmware_property_status::*;
 use crate::raspberrypi_firmware::rpi_firmware_property_tag::*;
@@ -47,7 +47,7 @@ fn rpi_firmware_property_list(mb: &Mailbox, data: *mut u8, tag_size: usize) -> R
     debug!("buf: {:?}", buf);
 
     if buf[1] != RPI_FIRMWARE_STATUS_SUCCESS as u32 {
-        return Err(ErrorKind::RequestFailed { code: buf[1] }.into());
+        return Err(Error::RequestFailed { code: buf[1] });
     }
 
     // write back to data
@@ -65,11 +65,10 @@ pub fn rpi_firmware_property(
     req_resp_size: usize,
 ) -> Result<()> {
     if buf_size < req_resp_size {
-        return Err(ErrorKind::InvalidInput {
+        return Err(Error::InvalidInput {
             buf_size,
             req_resp_size,
-        }
-        .into());
+        });
     }
 
     let data_size = size_of::<rpi_firmware_property_tag_header>() + buf_size;
@@ -108,10 +107,9 @@ pub fn rpi_firmware_property(
         // check response header bit
         let header = u.header.as_mut();
         if (header.req_resp_size & (1u32 << 31)) == 0 {
-            return Err(ErrorKind::ReqRespSizeBit {
+            return Err(Error::ReqRespSizeBit {
                 req_resp_size: header.req_resp_size,
-            }
-            .into());
+            });
         }
         header.req_resp_size &= !(1u32 << 31); // clear flag
     }
@@ -130,20 +128,18 @@ pub fn rpi_firmware_property(
             "Note: req_resp_size seems not to be used in the firmware \
              for now, but we require users to set this to proper value"
         );
-        return Err(ErrorKind::BufferSizeMismatch {
+        return Err(Error::BufferSizeMismatch {
             req_resp_size: header.req_resp_size as usize,
             think: req_resp_size,
-        }
-        .into());
+        });
     }
 
     debug!("buf_size: {}", buf_size);
     if header.req_resp_size > buf_size as u32 {
-        return Err(ErrorKind::BufferSizeMismatchSupplied {
+        return Err(Error::BufferSizeMismatchSupplied {
             req_resp_size: header.req_resp_size as usize,
             supplied: buf_size,
-        }
-        .into());
+        });
     }
 
     // write back to tag_data from u.data
