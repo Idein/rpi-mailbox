@@ -13,20 +13,13 @@ pub enum Error {
         buf_size: usize,
         req_resp_size: usize,
     },
-    #[error(
-        "req_resp_size[31] was not set by firmware: {}",
-        req_resp_size
-    )]
+    #[error("req_resp_size[31] was not set by firmware: {}", req_resp_size)]
     ReqRespSizeBit { req_resp_size: u32 },
     #[error("buffer size mismatch {} != {}", req_resp_size, think)]
     BufferSizeMismatch { req_resp_size: usize, think: usize },
-    #[error(
-        "buffer size mismatch (supplied) {} != {}",
-        req_resp_size, supplied
-    )]
+    #[error("buffer size mismatch (supplied) {} != {}", req_resp_size, supplied)]
     BufferSizeMismatchSupplied {
         req_resp_size: usize,
         supplied: usize,
     },
 }
-
