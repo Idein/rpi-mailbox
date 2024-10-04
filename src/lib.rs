@@ -206,6 +206,22 @@ pub fn get_throttled(mb: &Mailbox) -> Result<u32> {
     unsafe { Ok(msg.out.throttled) }
 }
 
+pub fn get_clock_state(mb: &Mailbox, clock_id: u32) -> Result<u32> {
+    use message::clock_state::*;
+
+    let mut msg = Message {
+        in_: In { clock_id },
+    };
+    rpi_firmware_property(
+        mb,
+        RPI_FIRMWARE_GET_CLOCK_STATE,
+        &mut msg as *mut Message as *mut u8,
+        size_of::<Message>(),
+        size_of::<Out>(),
+    )?;
+    unsafe { Ok(msg.out.state) }
+}
+
 pub fn set_clock_state(mb: &Mailbox, clock_id: u32, state: u32) -> Result<u32> {
     use message::set_clock_state::*;
 
@@ -220,6 +236,22 @@ pub fn set_clock_state(mb: &Mailbox, clock_id: u32, state: u32) -> Result<u32> {
         size_of::<Out>(),
     )?;
     unsafe { Ok(msg.out.state) }
+}
+
+pub fn get_clock_rate(mb: &Mailbox, clock_id: u32) -> Result<u32> {
+    use message::clock_rate::*;
+
+    let mut msg = Message {
+        in_: In { clock_id },
+    };
+    rpi_firmware_property(
+        mb,
+        RPI_FIRMWARE_GET_CLOCK_RATE,
+        &mut msg as *mut Message as *mut u8,
+        size_of::<Message>(),
+        size_of::<Out>(),
+    )?;
+    unsafe { Ok(msg.out.rate) }
 }
 
 pub fn set_clock_rate(
