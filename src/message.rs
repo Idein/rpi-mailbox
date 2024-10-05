@@ -263,3 +263,98 @@ pub mod throttled {
         pub out: Out,
     }
 }
+
+/// RPI_FIRMWARE_GET_CLOCK_STATE
+pub mod clock_state {
+    #[repr(C)]
+    #[derive(Debug, Clone, Copy)]
+    pub struct In {
+        pub clock_id: u32,
+    }
+
+    #[repr(C)]
+    #[derive(Debug, Clone, Copy)]
+    pub struct Out {
+        pub clock_id: u32,
+        pub state: u32,
+    }
+
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub union Message {
+        pub in_: In,
+        pub out: Out,
+    }
+}
+
+/// RPI_FIRMWARE_SET_CLOCK_STATE
+pub mod set_clock_state {
+    #[repr(C)]
+    #[derive(Debug, Clone, Copy)]
+    pub struct In {
+        pub clock_id: u32,
+        pub state: u32,
+    }
+
+    #[repr(C)]
+    #[derive(Debug, Clone, Copy)]
+    pub struct Out {
+        pub clock_id: u32,
+        pub state: u32,
+    }
+
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub union Message {
+        pub in_: In,
+        pub out: Out,
+    }
+}
+
+/// RPI_FIRMWARE_GET_CLOCK_RATE
+pub mod clock_rate {
+    #[repr(C)]
+    #[derive(Debug, Clone, Copy)]
+    pub struct In {
+        pub clock_id: u32,
+    }
+
+    #[repr(C)]
+    #[derive(Debug, Clone, Copy)]
+    pub struct Out {
+        pub clock_id: u32,
+        pub rate: u32,
+    }
+
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub union Message {
+        pub in_: In,
+        pub out: Out,
+    }
+}
+
+/// RPI_FIRMWARE_SET_CLOCK_RATE
+pub mod set_clock_rate {
+    #[repr(C)]
+    #[derive(Debug, Clone, Copy)]
+    pub struct In {
+        pub clock_id: u32,
+        pub rate: u32,
+        pub skip_setting_turbo: u32,
+    }
+
+    #[repr(C)]
+    #[derive(Debug, Clone, Copy)]
+    pub struct Out {
+        pub clock_id: u32,
+        pub rate: u32,
+    }
+
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub union Message {
+        pub in_: In,
+        pub out: Out,
+    }
+}
