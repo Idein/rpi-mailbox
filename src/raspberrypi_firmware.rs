@@ -1,8 +1,7 @@
-/// raspberrypi-firmware
-///
-/// This file was derived from
-/// https://github.com/raspberrypi/linux/blob/rpi-4.14.y/include/soc/bcm2835/raspberrypi-firmware.h
-///
+//! raspberrypi-firmware
+//!
+//! This file was derived from
+//! https://github.com/raspberrypi/linux/blob/rpi-4.14.y/include/soc/bcm2835/raspberrypi-firmware.h
 
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
