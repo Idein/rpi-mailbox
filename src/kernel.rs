@@ -22,6 +22,12 @@ mod ioctl {
     const VCIO_IOC_MAGIC: u8 = 100;
     const VCIO_IOC_TYPE_MODE: u8 = 0;
 
+    #[cfg(not(target_pointer_width = "32"))]
+    ioctl_readwrite! {
+        /// mailbox_property via ioctl with VCIO_IOC_MAGIC
+        mailbox_property, VCIO_IOC_MAGIC, VCIO_IOC_TYPE_MODE, *mut nix::libc::c_char
+    }
+    #[cfg(target_pointer_width = "32")]
     ioctl_readwrite! {
         /// mailbox_property via ioctl with VCIO_IOC_MAGIC
         mailbox_property, VCIO_IOC_MAGIC, VCIO_IOC_TYPE_MODE, u32
@@ -43,7 +49,11 @@ fn rpi_firmware_property_list(mb: &Mailbox, data: *mut u8, tag_size: usize) -> R
 
     // issue request to mailbox
     debug!("buf: {:?}", buf);
-    let res = unsafe { ioctl::mailbox_property(mb.as_raw_fd(), buf.as_mut_ptr()) }?;
+    #[cfg(not(target_pointer_width = "32"))]
+    let ptr = buf.as_mut_ptr() as *mut *mut nix::libc::c_char;
+    #[cfg(target_pointer_width = "32")]
+    let ptr = buf.as_mut_ptr();
+    let res = unsafe { ioctl::mailbox_property(mb.as_raw_fd(), ptr) }?;
     debug!("buf: {:?}", buf);
 
     if buf[1] != RPI_FIRMWARE_STATUS_SUCCESS as u32 {
