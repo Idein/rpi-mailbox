@@ -9,7 +9,7 @@ fn main() {
     let mb = Mailbox::new("/dev/vcio").expect("mailbox");
 
     let rev = firmware_revision(&mb).expect("firmware_revision");
-    let date = Utc.from_utc_datetime(&NaiveDateTime::from_timestamp(rev as i64, 0));
+    let date = DateTime::from_timestamp(rev as i64, 0).unwrap();
     println!("Firmware revision: {}", date.format("%b %e %Y %T"));
 
     let model = get_board_model(&mb).expect("board_model");
