@@ -5,7 +5,7 @@ use std::mem::size_of;
 use std::os::unix::io::AsRawFd;
 use std::ptr::{self, NonNull};
 
-use log::*;
+use log::{info, trace};
 use nix::libc::c_int;
 
 use crate::error::{Error, Result};
@@ -36,7 +36,7 @@ mod ioctl {
 
 fn rpi_firmware_property_list(mb: &Mailbox, data: *mut u8, tag_size: usize) -> Result<c_int> {
     let size: usize = size_of::<u32>() * 2 + tag_size + size_of::<u32>();
-    debug!("{}:{}", size, tag_size);
+    trace!("{}:{}", size, tag_size);
 
     let mut buf: Vec<u32> = vec![0u32; size / 4];
     // make request
@@ -48,13 +48,13 @@ fn rpi_firmware_property_list(mb: &Mailbox, data: *mut u8, tag_size: usize) -> R
     buf[size / 4 - 1] = RPI_FIRMWARE_PROPERTY_END as u32;
 
     // issue request to mailbox
-    debug!("buf: {:?}", buf);
+    trace!("buf: {:?}", buf);
     #[cfg(not(target_pointer_width = "32"))]
     let ptr = buf.as_mut_ptr() as *mut *mut nix::libc::c_char;
     #[cfg(target_pointer_width = "32")]
     let ptr = buf.as_mut_ptr();
     let res = unsafe { ioctl::mailbox_property(mb.as_raw_fd(), ptr) }?;
-    debug!("buf: {:?}", buf);
+    trace!("buf: {:?}", buf);
 
     if buf[1] != RPI_FIRMWARE_STATUS_SUCCESS as u32 {
         return Err(Error::RequestFailed { code: buf[1] });
@@ -82,7 +82,7 @@ pub fn rpi_firmware_property(
     }
 
     let data_size = size_of::<rpi_firmware_property_tag_header>() + buf_size;
-    debug!("{},{},{}", buf_size, req_resp_size, data_size);
+    trace!("{},{},{}", buf_size, req_resp_size, data_size);
 
     let mut data = vec![0u8; data_size];
     union U {
@@ -110,9 +110,9 @@ pub fn rpi_firmware_property(
         );
 
         // issue request
-        debug!("data[..] {} {} {} {}", data[0], data[1], data[2], data[3]);
+        trace!("data[..] {} {} {} {}", data[0], data[1], data[2], data[3]);
         rpi_firmware_property_list(mb, u.data.as_ptr(), data_size)?;
-        debug!("data[..] {} {} {} {}", data[0], data[1], data[2], data[3]);
+        trace!("data[..] {} {} {} {}", data[0], data[1], data[2], data[3]);
 
         // check response header bit
         let header = u.header.as_mut();
@@ -129,9 +129,10 @@ pub fn rpi_firmware_property(
     // check response consistency...
     //
 
-    debug!(
+    trace!(
         "req_resp_size: {:x},{:x}",
-        header.req_resp_size, req_resp_size
+        header.req_resp_size,
+        req_resp_size,
     );
     if header.req_resp_size != req_resp_size as u32 {
         info!(
@@ -144,7 +145,7 @@ pub fn rpi_firmware_property(
         });
     }
 
-    debug!("buf_size: {}", buf_size);
+    trace!("buf_size: {}", buf_size);
     if header.req_resp_size > buf_size as u32 {
         return Err(Error::BufferSizeMismatchSupplied {
             req_resp_size: header.req_resp_size as usize,
